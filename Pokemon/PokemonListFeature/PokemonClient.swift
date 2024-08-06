@@ -41,6 +41,7 @@ extension DependencyValues {
 extension PokemonClient: DependencyKey {
   /// The live implementation of `PokemonClient`.
   static let liveValue: PokemonClient = {
+    // this could be injected e.g static func makeLive(networkService: NetworkService)
     let networkLayer = NetworkLayer()
     
     return PokemonClient(

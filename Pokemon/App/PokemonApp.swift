@@ -8,7 +8,8 @@ struct PokemonApp: App {
       PokemonListView(
         store: Store(initialState: PokemonList.State()) {
           PokemonList()
-            ._printChanges()
+          // for debug uncomment this line.
+//            ._printChanges()
         }
       )
     }
