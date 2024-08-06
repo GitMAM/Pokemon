@@ -6,6 +6,28 @@ The app follows the Composable Architecture. It gives us a consistent manner to 
 
 This is also the latest simplified version of composable archticture that uses the new swift observation tools.
 
+## Architecture
+As mentioned above the app uses the composable archticture with the new swift observation tools
+
+## Overview
+
+ Key components include:
+1. **PokemonList**: Main screen for searching and listing Pokémon.
+   - `PokemonListView`: SwiftUI view for the list interface.
+   - `PokemonList`: Reducer managing list logic and state.
+
+2. **PokemonDetails**: Detailed view for individual Pokémon.
+   - `PokemonDetailsView`: SwiftUI view for Pokémon details.
+   - `PokemonDetails`: Reducer for details view state and actions.
+
+3. **PokemonClient**: API client handling network requests.
+   - Utilizes async/await for network calls.
+   - Implemented as a dependency for easier testing.
+   - The App includes live and test implementations of the client.
+
+4. **Models**: Data structures mapping API responses.
+   - Includes `PokemonListResult`, `PokemonListResponse`, `Pokemon`.
+
 
 ## Libraries Used
 
