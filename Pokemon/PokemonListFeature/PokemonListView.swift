@@ -15,6 +15,7 @@ struct PokemonListView: View {
         resultsList
       }
       .navigationTitle(Constants.navigationTitle)
+      .alert($store.scope(state: \.alert, action: \.alert))
     }
     .onAppear { store.send(.onAppear) }
     .sheet(
@@ -22,18 +23,6 @@ struct PokemonListView: View {
     ) { detailsStore in
       NavigationStack {
         PokemonDetailsView(store: detailsStore)
-      }
-      .alert(
-        item: Binding(
-          get: { store.error },
-          set: { _ in store.send(.dismissError) }
-        )
-      ) { error in
-        Alert(
-          title: Text("Error"),
-          message: Text(error.message),
-          dismissButton: .default(Text("OK"))
-        )
       }
     }
   }

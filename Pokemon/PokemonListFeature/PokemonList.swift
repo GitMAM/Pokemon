@@ -11,16 +11,11 @@ struct PokemonList {
   @ObservableState
   struct State: Equatable {
     @Presents var destination: Destination.State?
+    @Presents var alert: AlertState<Action.Alert>?
     var results: [PokemonListResult] = []
     var searchQuery = ""
     var isLoading = false
     var nextPageURL: String?
-    var error: ErrorState?
-  }
-  
-  struct ErrorState: Equatable, Identifiable {
-    let id = UUID()
-    let message: String
   }
   
   enum Action {
@@ -34,7 +29,15 @@ struct PokemonList {
     case pokemonDetailsResponse(Result<PokemonDetailsResponse, Error>)
     case loadMoreResponse(Result<PokemonListResponse, Error>)
     case destination(PresentationAction<Destination.Action>)
-    case dismissError
+    case alert(PresentationAction<Alert>)
+    
+    enum Alert: Equatable {
+      case error(String)
+    }
+  }
+  
+  enum Alert: Equatable {
+    case error(String)
   }
   
   @Dependency(\.pokemonClient) var pokemonClient
@@ -56,9 +59,10 @@ struct PokemonList {
         state.nextPageURL = response.next
         return .none
         
-      case let .initialListResponse(.failure(error)):
+      case .initialListResponse(.failure):
         state.isLoading = false
-        state.error = ErrorState(message: "Failed to load initial list: \(error.localizedDescription)")
+        state.results = []
+        state.alert = .initialListFailed
         return .none
         
       case let .searchQueryChanged(query):
@@ -84,15 +88,15 @@ struct PokemonList {
         }
         .cancellable(id: CancelID.search)
         
-      case let .searchResponse(.failure(error)):
-        state.results = []
-        state.isLoading = false
-        state.error = ErrorState(message: "Search failed: \(error.localizedDescription)")
-        return .none
-        
       case let .searchResponse(.success(response)):
         state.results = response.results
         state.isLoading = false
+        return .none
+        
+      case .searchResponse(.failure):
+        state.results = []
+        state.isLoading = false
+        state.alert = .searchResponseFailed
         return .none
         
       case let .pokemonTapped(pokemon):
@@ -106,8 +110,8 @@ struct PokemonList {
         state.destination = .details(PokemonDetails.State(details: details))
         return .none
         
-      case let .pokemonDetailsResponse(.failure(error)):
-        state.error = ErrorState(message: "Failed to load Pokémon details: \(error.localizedDescription)")
+      case .pokemonDetailsResponse(.failure):
+        state.alert = .pokemonDetailsFailed
         return .none
         
       case .loadMoreIfNeeded:
@@ -123,19 +127,62 @@ struct PokemonList {
         state.nextPageURL = response.next
         return .none
         
-      case let .loadMoreResponse(.failure(error)):
+      case .loadMoreResponse(.failure):
         state.isLoading = false
-        state.error = ErrorState(message: "Failed to load more results: \(error.localizedDescription)")
+        state.alert = .loadMoreResultsFailed
         return .none
         
       case .destination:
         return .none
         
-      case .dismissError:
-        state.error = nil
+      case .alert:
         return .none
       }
     }
     .ifLet(\.$destination, action: \.destination)
+    .ifLet(\.$alert, action: \.alert)
+  }
+}
+
+
+extension AlertState where Action == PokemonList.Action.Alert {
+  static let searchResponseFailed = Self {
+    TextState("Search Failed")
+  } actions: {
+    ButtonState(role: .cancel) {
+      TextState("OK")
+    }
+  } message: {
+    TextState("Search failed. Please try again later.")
+  }
+  
+  static let pokemonDetailsFailed = Self {
+    TextState("Load Failed")
+  } actions: {
+    ButtonState(role: .cancel) {
+      TextState("OK")
+    }
+  } message: {
+    TextState("Failed to load Pokémon details. Please try again later.")
+  }
+  
+  static let loadMoreResultsFailed = Self {
+    TextState("Load More Failed")
+  } actions: {
+    ButtonState(role: .cancel) {
+      TextState("OK")
+    }
+  } message: {
+    TextState("Failed to load more results. Please try again later.")
+  }
+  
+  static let initialListFailed = Self {
+    TextState("Initial Load Failed")
+  } actions: {
+    ButtonState(role: .cancel) {
+      TextState("OK")
+    }
+  } message: {
+    TextState("Failed to load initial list. Please try again later.")
   }
 }

@@ -50,10 +50,10 @@ struct PokemonDetailsResponse: Decodable, Equatable, Sendable {
 
 @DependencyClient
 struct PokemonClient {
-  let search: @Sendable (_ query: String) async throws -> PokemonListResponse
-  let details: @Sendable (_ url: String) async throws -> PokemonDetailsResponse
-  let initialList: @Sendable () async throws -> PokemonListResponse
-  let loadMore: @Sendable (_ url: String) async throws -> PokemonListResponse
+  var search: @Sendable (_ query: String) async throws -> PokemonListResponse
+  var details: @Sendable (_ url: String) async throws -> PokemonDetailsResponse
+  var initialList: @Sendable () async throws -> PokemonListResponse
+  var loadMore: @Sendable (_ url: String) async throws -> PokemonListResponse
 }
 
 extension DependencyValues {
