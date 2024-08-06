@@ -11,8 +11,10 @@ struct PokemonListResult: Decodable, Equatable, Identifiable, Sendable {
 }
 
 struct PokemonListResponse: Decodable, Equatable, Sendable {
-  var results: [PokemonListResult]
+  var count: Int
   var next: String?
+  var previous: String?
+  var results: [PokemonListResult]
 }
 
 struct PokemonDetailsResponse: Decodable, Equatable, Sendable {
@@ -67,10 +69,8 @@ extension PokemonClient: DependencyKey {
       let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0")!
       let (data, _) = try await URLSession.shared.data(from: url)
       let response = try JSONDecoder().decode(PokemonListResponse.self, from: data)
-      return PokemonListResponse(
-        results: response.results.filter { $0.name.contains(query.lowercased()) },
-        next: response.next
-      )
+      let filteredResults = response.results.filter { $0.name.contains(query.lowercased()) }
+      return PokemonListResponse(count: filteredResults.count, next: response.next, previous: response.previous, results: filteredResults)
     },
     details: { url in
       let (data, _) = try await URLSession.shared.data(from: URL(string: url)!)

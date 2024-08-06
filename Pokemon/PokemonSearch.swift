@@ -54,6 +54,7 @@ struct PokemonSearch {
       case let .initialListResponse(.success(response)):
         state.isLoading = false
         state.results = response.results
+        state.nextPageURL = response.next
         return .none
         
       case .initialListResponse(.failure):
