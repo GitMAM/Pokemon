@@ -5,9 +5,9 @@ import ComposableArchitecture
 struct PokemonApp: App {
   var body: some Scene {
     WindowGroup {
-      PokemonSearchView(
-        store: Store(initialState: PokemonSearch.State()) {
-          PokemonSearch()
+      PokemonListView(
+        store: Store(initialState: PokemonList.State()) {
+          PokemonList()
             ._printChanges()
         }
       )

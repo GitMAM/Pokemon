@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 @Reducer
-struct PokemonSearch {
+struct PokemonList {
   @Reducer(state: .equatable)
   enum Destination {
     case details(PokemonDetails)
@@ -15,6 +15,12 @@ struct PokemonSearch {
     var searchQuery = ""
     var isLoading = false
     var nextPageURL: String?
+    var error: ErrorState?
+  }
+  
+  struct ErrorState: Equatable, Identifiable {
+    let id = UUID()
+    let message: String
   }
   
   enum Action {
@@ -28,6 +34,7 @@ struct PokemonSearch {
     case pokemonDetailsResponse(Result<PokemonDetailsResponse, Error>)
     case loadMoreResponse(Result<PokemonListResponse, Error>)
     case destination(PresentationAction<Destination.Action>)
+    case dismissError
   }
   
   @Dependency(\.pokemonClient) var pokemonClient
@@ -49,9 +56,9 @@ struct PokemonSearch {
         state.nextPageURL = response.next
         return .none
         
-      case .initialListResponse(.failure):
+      case let .initialListResponse(.failure(error)):
         state.isLoading = false
-        // Handle error (e.g., show an alert)
+        state.error = ErrorState(message: "Failed to load initial list: \(error.localizedDescription)")
         return .none
         
       case let .searchQueryChanged(query):
@@ -73,13 +80,14 @@ struct PokemonSearch {
         }
         state.isLoading = true
         return .run { [query = state.searchQuery] send in
-          await send(.searchResponse(Result { try await self.pokemonClient.search(query: query) }))
+          await send(.searchResponse(Result { try await self.pokemonClient.search(query)}))
         }
         .cancellable(id: CancelID.search)
         
-      case .searchResponse(.failure):
+      case let .searchResponse(.failure(error)):
         state.results = []
         state.isLoading = false
+        state.error = ErrorState(message: "Search failed: \(error.localizedDescription)")
         return .none
         
       case let .searchResponse(.success(response)):
@@ -90,7 +98,7 @@ struct PokemonSearch {
       case let .pokemonTapped(pokemon):
         return .run { send in
           await send(.pokemonDetailsResponse(Result {
-            try await self.pokemonClient.details(url: pokemon.url)
+            try await self.pokemonClient.details(pokemon.url)
           }))
         }
         
@@ -98,11 +106,15 @@ struct PokemonSearch {
         state.destination = .details(PokemonDetails.State(details: details))
         return .none
         
+      case let .pokemonDetailsResponse(.failure(error)):
+        state.error = ErrorState(message: "Failed to load Pokémon details: \(error.localizedDescription)")
+        return .none
+        
       case .loadMoreIfNeeded:
         guard let nextPageURL = state.nextPageURL, !state.isLoading else { return .none }
         state.isLoading = true
         return .run { send in
-          await send(.loadMoreResponse(Result { try await self.pokemonClient.loadMore(url: nextPageURL) }))
+          await send(.loadMoreResponse(Result { try await self.pokemonClient.loadMore(nextPageURL)}))
         }
         
       case let .loadMoreResponse(.success(response)):
@@ -111,14 +123,16 @@ struct PokemonSearch {
         state.nextPageURL = response.next
         return .none
         
-      case .loadMoreResponse(.failure):
+      case let .loadMoreResponse(.failure(error)):
         state.isLoading = false
-        // Handle error
+        state.error = ErrorState(message: "Failed to load more results: \(error.localizedDescription)")
         return .none
         
       case .destination:
         return .none
-      case .pokemonDetailsResponse(.failure(_)):
+        
+      case .dismissError:
+        state.error = nil
         return .none
       }
     }

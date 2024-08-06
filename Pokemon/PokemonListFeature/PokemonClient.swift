@@ -11,31 +11,31 @@ struct PokemonListResult: Decodable, Equatable, Identifiable, Sendable {
 }
 
 struct PokemonListResponse: Decodable, Equatable, Sendable {
-  var count: Int
-  var next: String?
-  var previous: String?
-  var results: [PokemonListResult]
+  let count: Int
+  let next: String?
+  let previous: String?
+  let results: [PokemonListResult]
 }
 
 struct PokemonDetailsResponse: Decodable, Equatable, Sendable {
-  var id: Int
-  var name: String
-  var height: Int
-  var weight: Int
-  var types: [TypeElement]
-  var stats: [Stat]
+  let id: Int
+  let name: String
+  let height: Int
+  let weight: Int
+  let types: [TypeElement]
+  let stats: [Stat]
   
   struct TypeElement: Decodable, Equatable, Sendable {
-    var type: Type
+    let type: Type
   }
   
   struct `Type`: Decodable, Equatable, Sendable {
-    var name: String
+    let name: String
   }
   
   struct Stat: Decodable, Equatable, Sendable {
-    var baseStat: Int
-    var stat: StatInfo
+    let baseStat: Int
+    let stat: StatInfo
     
     enum CodingKeys: String, CodingKey {
       case baseStat = "base_stat"
@@ -44,16 +44,16 @@ struct PokemonDetailsResponse: Decodable, Equatable, Sendable {
   }
   
   struct StatInfo: Decodable, Equatable, Sendable {
-    var name: String
+    let name: String
   }
 }
 
 @DependencyClient
 struct PokemonClient {
-  var search: @Sendable (_ query: String) async throws -> PokemonListResponse
-  var details: @Sendable (_ url: String) async throws -> PokemonDetailsResponse
-  var initialList: @Sendable () async throws -> PokemonListResponse
-  var loadMore: @Sendable (_ url: String) async throws -> PokemonListResponse
+  let search: @Sendable (_ query: String) async throws -> PokemonListResponse
+  let details: @Sendable (_ url: String) async throws -> PokemonDetailsResponse
+  let initialList: @Sendable () async throws -> PokemonListResponse
+  let loadMore: @Sendable (_ url: String) async throws -> PokemonListResponse
 }
 
 extension DependencyValues {
