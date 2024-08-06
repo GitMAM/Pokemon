@@ -3,7 +3,7 @@ import SwiftUI
 
 struct PokemonSearchView: View {
   @Bindable var store: StoreOf<PokemonSearch>
-
+  
   var body: some View {
     NavigationStack {
       VStack(alignment: .leading) {
@@ -17,18 +17,25 @@ struct PokemonSearchView: View {
           .disableAutocorrection(true)
         }
         .padding(.horizontal, 16)
-
+        
         ScrollView {
           LazyVStack {
             ForEach(store.results) { pokemon in
-              PokemonRow(store: store, pokemon: pokemon)
+              PokemonRow(pokemon: pokemon)
+                .onTapGesture {
+                  store.send(.pokemonTapped(pokemon))
+                }
                 .onAppear {
                   if pokemon.id == store.results.last?.id {
                     store.send(.loadMoreIfNeeded)
                   }
                 }
+              
+              Divider()
+                .background(Color.gray.opacity(0.3))
+                .frame(height: 1)
             }
-
+            
             if store.isLoading {
               ProgressView()
                 .frame(maxWidth: .infinity)
@@ -36,7 +43,7 @@ struct PokemonSearchView: View {
             }
           }
         }
-
+        
         Button("Pokémon data provided by PokeAPI") {
           UIApplication.shared.open(URL(string: "https://pokeapi.co")!)
         }
@@ -46,46 +53,25 @@ struct PokemonSearchView: View {
       .navigationTitle("Pokémon Search")
     }
     .onAppear { store.send(.onAppear) }
+    .sheet(
+      item: $store.scope(state: \.destination?.details, action: \.destination.details)
+    ) { detailsStore in
+      NavigationStack {
+        PokemonDetailsView(store: detailsStore)
+      }
+    }
   }
 }
 
 struct PokemonRow: View {
-  let store: StoreOf<PokemonSearch>
   let pokemon: PokemonListResult
-
+  
   var body: some View {
-    VStack(alignment: .leading) {
-      Button {
-        store.send(.searchResultTapped(pokemon))
-      } label: {
-        HStack {
-          Text(pokemon.name.capitalized)
-
-          if store.resultDetailsRequestInFlight?.id == pokemon.id {
-            ProgressView()
-          }
-        }
-      }
-
-      if pokemon.id == store.pokemonDetails?.id {
-        pokemonDetailsView(details: store.pokemonDetails)
-      }
+    HStack {
+      Text(pokemon.name.capitalized)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     .padding(.vertical, 8)
-  }
-
-  @ViewBuilder
-  func pokemonDetailsView(details: PokemonSearch.State.PokemonDetails?) -> some View {
-    if let details {
-      VStack(alignment: .leading) {
-        Text("Height: \(details.height)")
-        Text("Weight: \(details.weight)")
-        Text("Types: \(details.types.joined(separator: ", "))")
-        ForEach(details.stats, id: \.name) { stat in
-          Text("\(stat.name.capitalized): \(stat.baseStat)")
-        }
-      }
-      .padding(.leading, 16)
-    }
+    .padding(.horizontal, 16)
   }
 }

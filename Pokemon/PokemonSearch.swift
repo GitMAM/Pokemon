@@ -1,48 +1,40 @@
 import ComposableArchitecture
-import Foundation
+import SwiftUI
 
 @Reducer
 struct PokemonSearch {
+  @Reducer(state: .equatable)
+  enum Destination {
+    case details(PokemonDetails)
+  }
+  
   @ObservableState
   struct State: Equatable {
+    @Presents var destination: Destination.State?
     var results: [PokemonListResult] = []
-    var resultDetailsRequestInFlight: PokemonListResult?
     var searchQuery = ""
-    var pokemonDetails: PokemonDetails?
     var isLoading = false
     var nextPageURL: String?
-    
-    struct PokemonDetails: Equatable {
-      var id: PokemonListResult.ID
-      var weight: Int
-      var height: Int
-      var types: [String]
-      var stats: [Stat]
-      
-      struct Stat: Equatable {
-        var name: String
-        var baseStat: Int
-      }
-    }
   }
   
   enum Action {
     case onAppear
     case initialListResponse(Result<PokemonListResponse, Error>)
-    case detailsResponse(PokemonListResult.ID, Result<PokemonDetailsResponse, Error>)
     case searchQueryChanged(String)
     case searchQueryChangeDebounced
     case searchResponse(Result<PokemonListResponse, Error>)
-    case searchResultTapped(PokemonListResult)
+    case pokemonTapped(PokemonListResult)
     case loadMoreIfNeeded
+    case pokemonDetailsResponse(Result<PokemonDetailsResponse, Error>)
     case loadMoreResponse(Result<PokemonListResponse, Error>)
+    case destination(PresentationAction<Destination.Action>)
   }
   
   @Dependency(\.pokemonClient) var pokemonClient
   @Dependency(\.continuousClock) var clock
-  private enum CancelID { case search, details, debounce }
+  private enum CancelID { case search, debounce }
   
-  var body: some Reducer<State, Action> {
+  var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .onAppear:
@@ -60,22 +52,6 @@ struct PokemonSearch {
       case .initialListResponse(.failure):
         state.isLoading = false
         // Handle error (e.g., show an alert)
-        return .none
-        
-      case .detailsResponse(_, .failure):
-        state.pokemonDetails = nil
-        state.resultDetailsRequestInFlight = nil
-        return .none
-        
-      case let .detailsResponse(id, .success(details)):
-        state.pokemonDetails = State.PokemonDetails(
-          id: id,
-          weight: details.weight,
-          height: details.height,
-          types: details.types.map { $0.type.name },
-          stats: details.stats.map { State.PokemonDetails.Stat(name: $0.stat.name, baseStat: $0.baseStat) }
-        )
-        state.resultDetailsRequestInFlight = nil
         return .none
         
       case let .searchQueryChanged(query):
@@ -111,18 +87,16 @@ struct PokemonSearch {
         state.isLoading = false
         return .none
         
-      case let .searchResultTapped(pokemon):
-        state.resultDetailsRequestInFlight = pokemon
-        
+      case let .pokemonTapped(pokemon):
         return .run { send in
-          await send(
-            .detailsResponse(
-              pokemon.id,
-              Result { try await self.pokemonClient.details(url: pokemon.url) }
-            )
-          )
+          await send(.pokemonDetailsResponse(Result {
+            try await self.pokemonClient.details(url: pokemon.url)
+          }))
         }
-        .cancellable(id: CancelID.details, cancelInFlight: true)
+        
+      case let .pokemonDetailsResponse(.success(details)):
+        state.destination = .details(PokemonDetails.State(details: details))
+        return .none
         
       case .loadMoreIfNeeded:
         guard let nextPageURL = state.nextPageURL, !state.isLoading else { return .none }
@@ -141,7 +115,13 @@ struct PokemonSearch {
         state.isLoading = false
         // Handle error
         return .none
+        
+      case .destination:
+        return .none
+      case .pokemonDetailsResponse(.failure(_)):
+        return .none
       }
     }
+    .ifLet(\.$destination, action: \.destination)
   }
 }
