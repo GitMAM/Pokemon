@@ -20,7 +20,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test successful details retrieval with mock data
   func testDetailsSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -39,7 +38,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test search failure
   func testSearchFailure() async {
     let client = PokemonClient(
       search: { _ in throw PokemonClientError.networkError(NSError(domain: "", code: -1, userInfo: nil)) },
@@ -58,7 +56,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test successful initial list retrieval
   func testInitialListSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -76,7 +73,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test initial list failure
   func testInitialListFailure() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -95,7 +91,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test details retrieval failure
   func testDetailsFailure() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -114,7 +109,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test successful load more with mock data
   func testLoadMoreSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -132,7 +126,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test load more failure
   func testLoadMoreFailure() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
@@ -151,7 +144,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test empty search result
   func testEmptySearchResult() async throws {
     let client = PokemonClient(
       search: { _ in
@@ -171,7 +163,6 @@ final class PokemonClientTests: XCTestCase {
     }
   }
   
-  // Test handling invalid URL error
   func testInvalidURLHandling() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },

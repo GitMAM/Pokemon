@@ -39,6 +39,7 @@ struct PokemonDetailsView: View {
   
   private var basicInfo: some View {
     VStack(alignment: .leading, spacing: Constants.infoSpacing) {
+      InfoRow(label: "ID", value: "\(store.details.id)")
       InfoRow(label: "Height", value: "\(store.details.height)")
       InfoRow(label: "Weight", value: "\(store.details.weight)")
       InfoRow(label: "Types", value: types)

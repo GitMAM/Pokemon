@@ -1,13 +1,18 @@
 import ComposableArchitecture
 import SwiftUI
 
+// MARK: - PokemonList Reducer
+/// The `PokemonList` reducer handles the state and actions related to the Pokemon list view.
 @Reducer
 struct PokemonList {
+  /// Enum representing possible destinations in the application.
+  /// This is a nested reducer for handling navigation to detailed views.
   @Reducer(state: .equatable)
   enum Destination {
     case details(PokemonDetails)
   }
   
+  /// The state of the Pokemon list screen.
   @ObservableState
   struct State: Equatable {
     @Presents var destination: Destination.State?
@@ -18,6 +23,7 @@ struct PokemonList {
     var nextPageURL: String?
   }
   
+  /// Enum representing possible actions for the Pokemon list.
   enum Action {
     case onAppear
     case initialListResponse(Result<PokemonListResponse, Error>)
@@ -36,14 +42,16 @@ struct PokemonList {
     }
   }
   
-  enum Alert: Equatable {
-    case error(String)
-  }
-  
+  /// Dependency for accessing the PokemonClient.
   @Dependency(\.pokemonClient) var pokemonClient
+  
+  /// Dependency for accessing the continuous clock.
   @Dependency(\.continuousClock) var clock
+  
+  /// Enum representing cancellation identifiers for asynchronous operations.
   private enum CancelID { case search, debounce }
   
+  /// The main body of the reducer, defining how actions change the state.
   var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
@@ -145,6 +153,9 @@ struct PokemonList {
 }
 
 
+// MARK: - AlertState Extensions
+
+/// Extensions for `AlertState` to define pre-configured alert states.
 extension AlertState where Action == PokemonList.Action.Alert {
   static let searchResponseFailed = Self {
     TextState("Search Failed")
