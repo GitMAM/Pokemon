@@ -10,7 +10,7 @@ struct NetworkLayer {
   
   init() {
     let configuration = URLSessionConfiguration.default
-    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+    configuration.requestCachePolicy = .returnCacheDataElseLoad
     configuration.urlCache = URLCache(memoryCapacity: 512_000, diskCapacity: 10_000_000, diskPath: nil)
     self.urlSession = URLSession(configuration: configuration)
   }

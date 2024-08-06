@@ -55,7 +55,7 @@ final class PokemonListTests: XCTestCase {
     
     await store.send(.pokemonTapped(pokemon))
     await store.receive(\.pokemonDetailsResponse.success) {
-      $0.destination = .details(PokemonDetails.State(details: PokemonDetailsResponse.mock))
+      $0.destination = .details(PokemonDetails.State(details: Pokemon.mock))
     }
   }
   
@@ -205,7 +205,7 @@ extension PokemonListResponse {
   )
 }
 
-extension PokemonDetailsResponse {
+extension Pokemon {
   static let mock = Self(
     id: 25,
     name: "Pikachu",

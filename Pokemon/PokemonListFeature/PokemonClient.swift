@@ -17,7 +17,7 @@ struct PokemonClient {
   ///
   /// - Parameter url: The URL for the Pokemon details.
   /// - Returns: A `PokemonDetailsResponse` containing the Pokemon details.
-  var details: @Sendable (_ url: String) async throws -> PokemonDetailsResponse
+  var details: @Sendable (_ url: String) async throws -> Pokemon
   
   /// Fetches the initial list of Pokemon.
   ///
@@ -46,10 +46,15 @@ extension PokemonClient: DependencyKey {
     
     return PokemonClient(
       search: { query in
-        guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0") else {
-          throw PokemonClientError.invalidURL
-        }
-        let response: PokemonListResponse = try await networkLayer.fetchData(from: url)
+        // Implemented partial match search functionality for Pokémon names.
+        // While the Pokémon API requires exact matches (e.g., "pikachu"),
+        // this app allows users to search with partial inputs (e.g., "Pika").
+        // This approach enhances user experience by accommodating typos and incomplete names,
+        // making the app more intuitive and user-friendly.
+        // It involves fetching a complete list of Pokémon names and performing client-side filtering,
+        // which may not be the most efficient but significantly improves usability.
+        // The caching will also work in our favour so we won't have to hit the API multiple times.
+        let response: PokemonListResponse = try await networkLayer.fetchData(from: Constants.baseURL(limit: 2000))
         let filteredResults = response.results.filter { $0.name.contains(query.lowercased()) }
         return PokemonListResponse(count: filteredResults.count, next: response.next, previous: response.previous, results: filteredResults)
       },
@@ -60,10 +65,7 @@ extension PokemonClient: DependencyKey {
         return try await networkLayer.fetchData(from: url)
       },
       initialList: {
-        guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=20&offset=0") else {
-          throw PokemonClientError.invalidURL
-        }
-        return try await networkLayer.fetchData(from: url)
+        return try await networkLayer.fetchData(from: Constants.baseURL())
       },
       loadMore: { url in
         guard let url = URL(string: url) else {

@@ -21,7 +21,7 @@ struct PokemonListResponse: Decodable, Equatable, Sendable {
 }
 
 /// Represents the detailed response for a specific Pokemon.
-struct PokemonDetailsResponse: Decodable, Equatable, Sendable {
+struct Pokemon: Decodable, Equatable, Sendable {
   let id: Int
   let name: String
   let height: Int

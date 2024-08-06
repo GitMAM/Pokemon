@@ -14,4 +14,12 @@ enum Constants {
   static let imageSize: CGFloat = 200
   static let verticalSpacing: CGFloat = 20
   static let infoSpacing: CGFloat = 8
+  
+  // urls
+  static func baseURL(limit: Int = 20) throws -> URL {
+    guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=\(limit)&offset=0") else {
+      throw PokemonClientError.invalidURL
+    }
+    return url
+  }
 }

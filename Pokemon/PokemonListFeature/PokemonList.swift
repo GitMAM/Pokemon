@@ -32,7 +32,7 @@ struct PokemonList {
     case searchResponse(Result<PokemonListResponse, Error>)
     case pokemonTapped(PokemonListResult)
     case loadMoreIfNeeded
-    case pokemonDetailsResponse(Result<PokemonDetailsResponse, Error>)
+    case pokemonDetailsResponse(Result<Pokemon, Error>)
     case loadMoreResponse(Result<PokemonListResponse, Error>)
     case destination(PresentationAction<Destination.Action>)
     case alert(PresentationAction<Alert>)

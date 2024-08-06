@@ -5,7 +5,7 @@ import ComposableArchitecture
 struct PokemonDetails {
   @ObservableState
   struct State: Equatable {
-    let details: PokemonDetailsResponse
+    let details: Pokemon
   }
 
   enum Action {}

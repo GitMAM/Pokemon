@@ -6,7 +6,7 @@ final class PokemonClientTests: XCTestCase {
   func testSearchSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -23,7 +23,7 @@ final class PokemonClientTests: XCTestCase {
   func testDetailsSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -41,7 +41,7 @@ final class PokemonClientTests: XCTestCase {
   func testSearchFailure() async {
     let client = PokemonClient(
       search: { _ in throw PokemonClientError.networkError(NSError(domain: "", code: -1, userInfo: nil)) },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -59,7 +59,7 @@ final class PokemonClientTests: XCTestCase {
   func testInitialListSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -76,7 +76,7 @@ final class PokemonClientTests: XCTestCase {
   func testInitialListFailure() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { throw PokemonClientError.invalidURL },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -112,7 +112,7 @@ final class PokemonClientTests: XCTestCase {
   func testLoadMoreSuccessWithMockData() async throws {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
@@ -129,7 +129,7 @@ final class PokemonClientTests: XCTestCase {
   func testLoadMoreFailure() async {
     let client = PokemonClient(
       search: { _ in PokemonListResponse.mock },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in throw PokemonClientError.networkError(NSError(domain: "", code: -1, userInfo: nil)) }
     )
@@ -149,7 +149,7 @@ final class PokemonClientTests: XCTestCase {
       search: { _ in
         PokemonListResponse(count: 0, next: nil, previous: nil, results: [])
       },
-      details: { _ in PokemonDetailsResponse.mock },
+      details: { _ in Pokemon.mock },
       initialList: { PokemonListResponse.mock },
       loadMore: { _ in PokemonListResponse.mock }
     )
