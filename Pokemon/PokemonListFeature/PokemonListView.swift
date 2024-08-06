@@ -43,6 +43,7 @@ struct PokemonListView: View {
       LazyVStack {
         ForEach(store.results) { pokemon in
           PokemonRow(pokemon: pokemon)
+            .contentShape(Rectangle())
             .onTapGesture {
               store.send(.pokemonTapped(pokemon))
             }

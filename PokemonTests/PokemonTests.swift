@@ -89,7 +89,7 @@ final class PokemonListTests: XCTestCase {
       }
       $0.continuousClock = ImmediateClock()
     }
-
+    
     await store.send(.searchQueryChanged("Pika")) {
       $0.searchQuery = "Pika"
     }
@@ -183,15 +183,42 @@ final class PokemonListTests: XCTestCase {
       $0.nextPageURL = PokemonListResponse.mock.next
     }
   }
-  
 }
 
 extension PokemonListResponse {
-  static let mock = Self(count: 10, next: "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20", previous: "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20", results: [PokemonListResult(name: "Bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/"),
-                                                                                                                                                                             PokemonListResult(name: "Charmander", url: "https://pokeapi.co/api/v2/pokemon/4/"),
-                                                                                                                                                                             PokemonListResult(name: "Squirtle", url: "https://pokeapi.co/api/v2/pokemon/7/")])
+  static let mock = Self(
+    count: 10,
+    next: "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20",
+    previous: "https://pokeapi.co/api/v2/pokemon?offset=0&limit=20",
+    results: [
+      PokemonListResult(name: "Bulbasaur", url: "https://pokeapi.co/api/v2/pokemon/1/"),
+      PokemonListResult(name: "Charmander", url: "https://pokeapi.co/api/v2/pokemon/4/"),
+      PokemonListResult(name: "Squirtle", url: "https://pokeapi.co/api/v2/pokemon/7/"),
+      PokemonListResult(name: "Pikachu", url: "https://pokeapi.co/api/v2/pokemon/25/"),
+      PokemonListResult(name: "Jigglypuff", url: "https://pokeapi.co/api/v2/pokemon/39/"),
+      PokemonListResult(name: "Meowth", url: "https://pokeapi.co/api/v2/pokemon/52/"),
+      PokemonListResult(name: "Psyduck", url: "https://pokeapi.co/api/v2/pokemon/54/"),
+      PokemonListResult(name: "Machop", url: "https://pokeapi.co/api/v2/pokemon/66/"),
+      PokemonListResult(name: "Gengar", url: "https://pokeapi.co/api/v2/pokemon/94/"),
+      PokemonListResult(name: "Eevee", url: "https://pokeapi.co/api/v2/pokemon/133/")
+    ]
+  )
 }
 
 extension PokemonDetailsResponse {
-  static let mock = Self(id: 25, name: "Pikachu", height: 10, weight: 20, types: [TypeElement(type: Type(name: "Name"))], stats: [Stat(baseStat: 10, stat: StatInfo(name: "name"))])
+  static let mock = Self(
+    id: 25,
+    name: "Pikachu",
+    height: 10,
+    weight: 20,
+    types: [
+      TypeElement(type: Type(name: "Electric"))
+    ],
+    stats: [
+      Stat(baseStat: 55, stat: StatInfo(name: "hp")),
+      Stat(baseStat: 40, stat: StatInfo(name: "attack")),
+      Stat(baseStat: 50, stat: StatInfo(name: "defense")),
+      Stat(baseStat: 90, stat: StatInfo(name: "speed"))
+    ]
+  )
 }
